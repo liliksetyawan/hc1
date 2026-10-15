@@ -85,3 +85,13 @@ jobs:
       uses: SonarSource/sonarqube-scan-action@v8.3.0
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    # Fails this job (and therefore the pipeline) if SonarCloud's Quality
+    # Gate for this analysis is not green. Requires CI-based analysis above
+    # to have actually run — it reads .scannerwork/report-task.txt, which is
+    # only produced by a sonar-scanner CI run, never by Automatic Analysis.
+    - name: SonarQube Quality Gate Check
+      uses: SonarSource/sonarqube-quality-gate-action@v1.2.1
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
