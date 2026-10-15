@@ -65,7 +65,7 @@ jobs:
       run: go build -v ./...
 
   sonarcloud:
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -79,7 +79,7 @@ jobs:
         go-version-file: 'go.mod'
 
     - name: Generate coverage report
-      run: go test ./... -coverprofile=coverage.out
+      run: go test ./... -coverprofile=coverage.out -coverpkg=./...
 
     - name: SonarQube Cloud Scan
       uses: SonarSource/sonarqube-scan-action@v8.3.0

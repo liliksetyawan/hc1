@@ -3,6 +3,7 @@ package mailer
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net"
 	"net/smtp"
@@ -22,6 +23,11 @@ type SMTPConfig struct {
 	Username string
 	Password string
 	From     string
+	// RootCAs overrides the trust store used to verify the server's
+	// certificate during STARTTLS. Nil (the default, used in production)
+	// falls back to the system root CAs — set this only to point at an
+	// internal relay signed by a private CA.
+	RootCAs *x509.CertPool
 }
 
 type SMTPMailer struct {
@@ -58,7 +64,7 @@ func (m *SMTPMailer) Send(ctx context.Context, to, subject, body string) error {
 	if err := c.Hello("localhost"); err != nil {
 		return fmt.Errorf("smtp hello: %w", err)
 	}
-	if err := c.StartTLS(&tls.Config{ServerName: m.cfg.Host}); err != nil {
+	if err := c.StartTLS(&tls.Config{ServerName: m.cfg.Host, RootCAs: m.cfg.RootCAs}); err != nil {
 		return fmt.Errorf("smtp starttls: %w", err)
 	}
 	if err := c.Auth(smtp.PlainAuth("", m.cfg.Username, m.cfg.Password, m.cfg.Host)); err != nil {
