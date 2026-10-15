@@ -119,5 +119,5 @@ jobs:
           context: .
           push: true
           tags: |
-            liliksetyawan/hc1:latest
-            liliksetyawan/hc1:${{ github.sha }}
+            liliks/hc1:latest
+            liliks/hc1:${{ github.sha }}
