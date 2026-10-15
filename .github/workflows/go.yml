@@ -63,3 +63,25 @@ jobs:
 
     - name: Build
       run: go build -v ./...
+
+  sonarcloud:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones improves the relevancy of SonarCloud's reporting.
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: 'go.mod'
+
+    - name: Generate coverage report
+      run: go test ./... -coverprofile=coverage.out
+
+    - name: SonarQube Cloud Scan
+      uses: SonarSource/sonarqube-scan-action@v8.3.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
