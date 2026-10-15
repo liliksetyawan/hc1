@@ -214,7 +214,7 @@ func TestRegister_SendsVerificationEmail(t *testing.T) {
 	var body struct {
 		RegisURL string `json:"regis_url"`
 	}
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 
 	select {
 	case call := <-mail.calls:
@@ -352,7 +352,7 @@ func TestRegister_DuplicateEmail(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
 	}
 	var body map[string]map[string]any
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body["error"]["code"] != "EMAIL_ALREADY_REGISTERED" {
 		t.Errorf("code = %v, want EMAIL_ALREADY_REGISTERED", body["error"]["code"])
 	}
@@ -372,7 +372,7 @@ func TestRegister_QuotaFull(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
 	}
 	var body map[string]map[string]any
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body["error"]["code"] != "QUOTA_FULL" {
 		t.Errorf("code = %v, want QUOTA_FULL", body["error"]["code"])
 	}
@@ -397,7 +397,7 @@ func TestRegister_ValidationError(t *testing.T) {
 			} `json:"fields"`
 		} `json:"error"`
 	}
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body.Error.Code != "VALIDATION_ERROR" {
 		t.Fatalf("code = %v, want VALIDATION_ERROR", body.Error.Code)
 	}
@@ -419,7 +419,7 @@ func TestAvailability_Success(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
 	}
 	var body map[string]float64
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body["total"] != 30 || body["registered"] != 12 || body["remaining"] != 18 {
 		t.Errorf("body = %+v, want {30 12 18}", body)
 	}
@@ -433,7 +433,7 @@ func TestVerify_Success(t *testing.T) {
 	var regBody struct {
 		RegisURL string `json:"regis_url"`
 	}
-	json.Unmarshal(rec.Body.Bytes(), &regBody)
+	_ = json.Unmarshal(rec.Body.Bytes(), &regBody)
 	code := regBody.RegisURL[len(regBody.RegisURL)-32:]
 
 	verifyRec := doRequest(router, http.MethodGet, "/api/registrations/verify/"+code, nil)
@@ -441,7 +441,7 @@ func TestVerify_Success(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", verifyRec.Code, verifyRec.Body.String())
 	}
 	var body map[string]string
-	json.Unmarshal(verifyRec.Body.Bytes(), &body)
+	_ = json.Unmarshal(verifyRec.Body.Bytes(), &body)
 	if body["status"] != "success" {
 		t.Errorf("status = %v, want success", body["status"])
 	}
@@ -454,7 +454,7 @@ func TestVerify_NotFound(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
 	}
 	var body map[string]map[string]any
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body["error"]["code"] != "REGISTRATION_NOT_FOUND" {
 		t.Errorf("code = %v, want REGISTRATION_NOT_FOUND", body["error"]["code"])
 	}
@@ -468,7 +468,7 @@ func TestVerify_Expired_ReleasesQuota(t *testing.T) {
 	var regBody struct {
 		RegisURL string `json:"regis_url"`
 	}
-	json.Unmarshal(rec.Body.Bytes(), &regBody)
+	_ = json.Unmarshal(rec.Body.Bytes(), &regBody)
 	code := regBody.RegisURL[len(regBody.RegisURL)-32:]
 
 	time.Sleep(80 * time.Millisecond)
@@ -478,14 +478,14 @@ func TestVerify_Expired_ReleasesQuota(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", verifyRec.Code, verifyRec.Body.String())
 	}
 	var body map[string]map[string]any
-	json.Unmarshal(verifyRec.Body.Bytes(), &body)
+	_ = json.Unmarshal(verifyRec.Body.Bytes(), &body)
 	if body["error"]["code"] != "REGISTRATION_EXPIRED" {
 		t.Errorf("code = %v, want REGISTRATION_EXPIRED", body["error"]["code"])
 	}
 
 	availRec := doRequest(router, http.MethodGet, "/api/availability", nil)
 	var avail map[string]float64
-	json.Unmarshal(availRec.Body.Bytes(), &avail)
+	_ = json.Unmarshal(availRec.Body.Bytes(), &avail)
 	if avail["remaining"] != 1 {
 		t.Errorf("remaining = %v, want 1 (quota must be returned)", avail["remaining"])
 	}
@@ -600,7 +600,7 @@ func TestRegister_InternalError(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
 	}
 	var body map[string]map[string]any
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body["error"]["code"] != "INTERNAL_ERROR" {
 		t.Errorf("code = %v, want INTERNAL_ERROR", body["error"]["code"])
 	}
@@ -621,7 +621,7 @@ func TestAvailability_InternalError(t *testing.T) {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
 	}
 	var body map[string]map[string]any
-	json.Unmarshal(rec.Body.Bytes(), &body)
+	_ = json.Unmarshal(rec.Body.Bytes(), &body)
 	if body["error"]["code"] != "INTERNAL_ERROR" {
 		t.Errorf("code = %v, want INTERNAL_ERROR", body["error"]["code"])
 	}

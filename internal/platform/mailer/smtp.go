@@ -50,10 +50,10 @@ func (m *SMTPMailer) Send(ctx context.Context, to, subject, body string) error {
 
 	c, err := smtp.NewClient(conn, m.cfg.Host)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return fmt.Errorf("smtp client: %w", err)
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	if err := c.Hello("localhost"); err != nil {
 		return fmt.Errorf("smtp hello: %w", err)

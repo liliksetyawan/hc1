@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("database: %v", err)
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 
 	migrations := []string{
 		"migrations/0001_create_workshop_registrations.sql",
@@ -67,8 +67,9 @@ func main() {
 	api.NewHandler(registerHandler, availabilityHandler, verifyHandler, mail).RegisterRoutes(router.Group("/api"))
 
 	srv := &http.Server{
-		Addr:    ":" + cfg.Port,
-		Handler: router,
+		Addr:              ":" + cfg.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	go func() {
