@@ -1,0 +1,7 @@
+.git
+.github
+.idea
+backend-skill-new
+*.md
+.env
+.env.example
